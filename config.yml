@@ -2,14 +2,14 @@ log_level: info
 access_log:
 http:
   servers:
-    - name: site1
-      listen: ":9001"
-      domains: [localhost]
-      proxy_pass: http://httpbin.org/get
-      cert_file:
-      key_file:
+    # - name: site1
+    #   listen: ":9001"
+    #   domains: [localhost]
+    #   proxy_pass: http://httpbin.org
+    #   cert_file:
+    #   key_file:
     - name: site2
       listen: ":9002"
-      gfw: true
-      domains: [http://nmhclbwvtxzkdfsr.neverssl.com/]
-      proxy_pass: "http://nmhclbwvtxzkdfsr.neverssl.com/"
+      proxy_pass: https://httpbin.org
+      domains: [localhost]
+      root: /web

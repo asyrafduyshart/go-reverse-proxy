@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	log "github.com/asyrafduyshart/go-reverse-proxy/log"
 )
 
@@ -36,14 +38,22 @@ func (s *Server) Start() {
 		}
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", s.Handler)
+	r := mux.NewRouter()
+
+	// api := r.PathPrefix("/api/v1/").Subrouter()
+	r.HandleFunc(`/proxy/{rest:[a-zA-Z0-9=\-\/]+}`, s.fuckGFW)
+
+	if s.Root != nil {
+		pathLocation := *s.Root
+		log.Info("Config location %s", pathLocation)
+		r.PathPrefix("/").Handler(http.FileServer(http.Dir("." + pathLocation)))
+	}
 
 	var err error
 	if s.SSL {
-		err = http.ListenAndServeTLS(s.Listen, s.CertFile, s.KeyFile, mux)
+		err = http.ListenAndServeTLS(s.Listen, s.CertFile, s.KeyFile, r)
 	} else {
-		err = http.ListenAndServe(s.Listen, mux)
+		err = http.ListenAndServe(s.Listen, r)
 	}
 
 	if err != nil {
@@ -71,7 +81,6 @@ func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
 			s.Proxy(w, r)
 		}
 	}
-
 }
 
 // Static server
@@ -106,6 +115,16 @@ func (s *Server) Static(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// IndexHandler index handler
+func (s *Server) IndexHandler() func(w http.ResponseWriter, r *http.Request) {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		location := *s.Root
+		log.Info("Web Location %s", location)
+		http.ServeFile(w, r, location)
+	}
+	return http.HandlerFunc(fn)
+}
+
 // Proxy server
 func (s *Server) Proxy(w http.ResponseWriter, r *http.Request) {
 	realurl := *s.ProxyPass + r.RequestURI
@@ -115,6 +134,7 @@ func (s *Server) Proxy(w http.ResponseWriter, r *http.Request) {
 
 	*o = *r
 	targetURL, err := url.Parse(*s.ProxyPass)
+	log.Info("Target Url: %s", targetURL)
 
 	o.Host = targetURL.Host
 	o.URL.Scheme = targetURL.Scheme

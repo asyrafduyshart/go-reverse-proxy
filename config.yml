@@ -2,14 +2,12 @@ log_level: info
 access_log:
 http:
   servers:
-    # - name: site1
-    #   listen: ":9001"
-    #   domains: [localhost]
-    #   proxy_pass: http://httpbin.org
-    #   cert_file:
-    #   key_file:
     - name: site2
       listen: ":9002"
       proxy_pass: https://httpbin.org
+      proxy_path: /get
+      request_headers:
+        - Authentication: Basic 123456
+        - Yomama: Pk
       domains: [localhost]
       root: /web

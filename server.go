@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -16,16 +17,27 @@ import (
 
 // Server struct file
 type Server struct {
-	Name      string   `yaml:"name"`
-	Listen    string   `yaml:"listen"`
-	Domains   []string `yaml:"domains"`
-	Root      *string  `yaml:"root"`
-	SSL       bool     `yaml:"ssl"`
-	GZIP      bool     `yaml:"gzip"`
-	GFW       bool     `yaml:"gfw"`
-	ProxyPass *string  `yaml:"proxy_pass"`
-	KeyFile   string   `yaml:"key_file"`
-	CertFile  string   `yaml:"cert_file"`
+	Name           string              `yaml:"name"`
+	Listen         string              `yaml:"listen"`
+	Domains        []string            `yaml:"domains"`
+	Root           *string             `yaml:"root"`
+	SSL            bool                `yaml:"ssl"`
+	GZIP           bool                `yaml:"gzip"`
+	GFW            bool                `yaml:"gfw"`
+	ProxyPass      *string             `yaml:"proxy_pass"`
+	ProxyPath      *string             `yaml:"proxy_path"`
+	RequestHeaders []map[string]string `yaml:"request_headers"`
+	KeyFile        string              `yaml:"key_file"`
+	CertFile       string              `yaml:"cert_file"`
+}
+
+// Keys Return keys of the given map
+func Keys(m map[string]string) map[string]interface{} {
+	po := make(map[string]interface{})
+	for k := range m {
+		po[k] = m[k]
+	}
+	return po
 }
 
 // Start the server
@@ -40,8 +52,10 @@ func (s *Server) Start() {
 
 	r := mux.NewRouter()
 
-	// api := r.PathPrefix("/api/v1/").Subrouter()
-	r.HandleFunc(`/proxy/{rest:[a-zA-Z0-9=\-\/]+}`, s.fuckGFW)
+	api := r.PathPrefix(*s.ProxyPath).Subrouter()
+	api.HandleFunc("", s.fuckGFW)
+	api.HandleFunc("/", s.fuckGFW)
+	api.HandleFunc(`/{rest:[a-zA-Z0-9=\-\/]+}`, s.fuckGFW)
 
 	if s.Root != nil {
 		pathLocation := *s.Root
@@ -204,6 +218,15 @@ func (s *Server) fuckGFW(w http.ResponseWriter, r *http.Request) {
 	req.Header.Set("Pragma", "no-cache")
 	req.Header.Set("User-Agent", r.Header.Get("User-Agent"))
 	req.Header.Set("Cookie", r.Header.Get("Cookie"))
+
+	for k := range s.RequestHeaders {
+		headerReq := Keys(s.RequestHeaders[k])
+		for j := range headerReq {
+			log.Info("Header: %s | Value: %s", j, headerReq[j])
+			str := fmt.Sprintf("%v", headerReq[j])
+			req.Header.Set(j, str)
+		}
+	}
 
 	resp, err := transport.RoundTrip(req)
 	if err != nil {

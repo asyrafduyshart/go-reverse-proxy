@@ -75,70 +75,6 @@ func (s *Server) Start() {
 	}
 }
 
-// Handler the request
-func (s *Server) Handler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", ProjectName+"/"+Version)
-	if !Contains(s.Domains, strings.Replace(r.Host, s.Listen, "", -1)) {
-		log.Error("Request [%s] RemoteAddr: %s, Header: %v", r.Host, r.RemoteAddr, r.Header)
-		w.Write([]byte("Bad Request."))
-		return
-	}
-	log.Info("Request URI: %s", r.URL.RequestURI())
-	log.Info("Request [%s] RemoteAddr: %s, Header: %v", r.Host, r.RemoteAddr, r.Header)
-
-	if s.GFW {
-		s.fuckGFW(w, r)
-	} else {
-		if s.ProxyPass == nil {
-			s.Static(w, r)
-		} else {
-			s.Proxy(w, r)
-		}
-	}
-}
-
-// Static server
-func (s *Server) Static(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path[1:]
-	data, err := ioutil.ReadFile(*s.Root + "/" + string(path))
-	if err == nil {
-		var contentType string
-		if strings.HasSuffix(path, ".css") {
-			contentType = "text/css"
-		} else if strings.HasSuffix(path, ".html") {
-			contentType = "text/html"
-		} else if strings.HasSuffix(path, ".js") {
-			contentType = "application/javascript"
-		} else if strings.HasSuffix(path, ".png") {
-			contentType = "image/png"
-		} else if strings.HasSuffix(path, ".jpg") {
-			contentType = "image/jepg"
-		} else if strings.HasSuffix(path, ".jepg") {
-			contentType = "image/jepg"
-		} else if strings.HasSuffix(path, ".svg") {
-			contentType = "image/svg+xml"
-		} else {
-			contentType = "text/plain"
-		}
-
-		w.Header().Add("Content Type", contentType)
-		w.Write(data)
-	} else {
-		w.WriteHeader(404)
-		w.Write([]byte("404 My dear - " + http.StatusText(404)))
-	}
-}
-
-// IndexHandler index handler
-func (s *Server) IndexHandler() func(w http.ResponseWriter, r *http.Request) {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		location := *s.Root
-		log.Info("Web Location %s", location)
-		http.ServeFile(w, r, location)
-	}
-	return http.HandlerFunc(fn)
-}
-
 // Proxy server
 func (s *Server) Proxy(w http.ResponseWriter, r *http.Request) {
 	realurl := *s.ProxyPass + r.RequestURI
@@ -211,13 +147,21 @@ func (s *Server) fuckGFW(w http.ResponseWriter, r *http.Request) {
 	log.Info("RealURL: %s", realurl)
 
 	req, err := http.NewRequest(r.Method, realurl, r.Body)
-	req.Header.Set("Accept", r.Header.Get("Accept"))
-	req.Header.Set("Accept-Encoding", r.Header.Get("Accept-Encoding"))
-	req.Header.Set("Accept-Language", r.Header.Get("Accept-Language"))
-	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("Pragma", "no-cache")
-	req.Header.Set("User-Agent", r.Header.Get("User-Agent"))
-	req.Header.Set("Cookie", r.Header.Get("Cookie"))
+	for name, values := range r.Header {
+		// Loop over all values for the name.
+		for _, value := range values {
+			fmt.Println(name, value)
+			req.Header.Set(name, value)
+		}
+	}
+
+	// req.Header.Set("Accept", r.Header.Get("Accept"))
+	// req.Header.Set("Accept-Encoding", r.Header.Get("Accept-Encoding"))
+	// req.Header.Set("Accept-Language", r.Header.Get("Accept-Language"))
+	// req.Header.Set("Cache-Control", "no-cache")
+	// req.Header.Set("Pragma", "no-cache")
+	// req.Header.Set("User-Agent", r.Header.Get("User-Agent"))
+	// req.Header.Set("Cookie", r.Header.Get("Cookie"))
 
 	for k := range s.RequestHeaders {
 		headerReq := Keys(s.RequestHeaders[k])

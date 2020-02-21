@@ -2,12 +2,17 @@ log_level: info
 access_log:
 http:
   servers:
-    - name: site2
+    - name: site
       listen: ":9002"
-      proxy_pass: https://httpbin.org
-      proxy_path: /get
-      request_headers:
-        - Authentication: Basic 123456
-        - Yomama: Pk
+      proxies:
+        - proxy_pass: https://httpbin.org
+          proxy_path: /get
+          request_headers:
+            - Authentication: Basic 123456
+            - Yomama: Pk
+        - proxy_pass: https://postman-echo.com
+          proxy_path: /headers
+          request_headers:
+            - Authentication: Basic 11235453
       domains: [localhost]
       root: /web

@@ -2,8 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -12,80 +10,6 @@ import (
 
 	log "github.com/asyrafduyshart/go-reverse-proxy/log"
 )
-
-// Proxy struct file
-type Proxy struct {
-	ProxyPass      *string             `yaml:"proxy_pass"`
-	ProxyPath      *string             `yaml:"proxy_path"`
-	RequestHeaders []map[string]string `yaml:"request_headers"`
-}
-
-func (p Proxy) setup(w http.ResponseWriter, r *http.Request) {
-
-	realurl := *p.ProxyPass + r.RequestURI
-	log.Info("RealURL: %s", realurl)
-
-	req, err := http.NewRequest(r.Method, realurl, r.Body)
-	for name, values := range r.Header {
-		// Loop over all values for the name.
-		for _, value := range values {
-			fmt.Println(name, value)
-			req.Header.Set(name, value)
-		}
-	}
-
-	for k := range p.RequestHeaders {
-		headerReq := Keys(p.RequestHeaders[k])
-		for j := range headerReq {
-			log.Info("Header: %s | Value: %s", j, headerReq[j])
-			str := fmt.Sprintf("%v", headerReq[j])
-			req.Header.Set(j, str)
-		}
-	}
-
-	resp, err := transport.RoundTrip(req)
-	if err != nil {
-		log.Error("%v", err)
-		return
-	}
-
-	if resp.StatusCode == 301 || resp.StatusCode == 302 {
-		location := resp.Header.Get("Location")
-		log.Info("Location: %s", location)
-		req, err = http.NewRequest(r.Method, location, r.Body)
-		req.Header.Set("Accept", r.Header.Get("Accept"))
-		req.Header.Set("Accept-Encoding", r.Header.Get("Accept-Encoding"))
-		req.Header.Set("Accept-Language", r.Header.Get("Accept-Language"))
-		req.Header.Set("Cache-Control", "no-cache")
-		req.Header.Set("Pragma", "no-cache")
-		req.Header.Set("User-Agent", r.Header.Get("User-Agent"))
-		req.Header.Set("Cookie", r.Header.Get("Cookie"))
-
-		resp, err = transport.RoundTrip(req)
-		if err != nil {
-			log.Error("%v", err)
-			return
-		}
-	}
-
-	for k, v := range resp.Header {
-		for _, vv := range v {
-			w.Header().Add(k, vv)
-		}
-	}
-	w.Header().Add("Cache-Control", "no-cache")
-	w.Header().Add("Content-Type", resp.Header.Get("Content-Type"))
-
-	if err != nil {
-		log.Error("%v", err)
-		return
-	}
-
-	data, _ := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	w.WriteHeader(resp.StatusCode)
-	w.Write(data)
-}
 
 // Server struct file
 type Server struct {
@@ -122,8 +46,6 @@ func (s *Server) Start() {
 		if proxy.ProxyPass != nil {
 			log.Info("%s listen %s, ssl: %v, proxy to %s", s.Name, s.Listen, s.SSL, *proxy.ProxyPass)
 		}
-
-		fmt.Println("PROXY", *proxy.ProxyPath)
 
 		r.PathPrefix(*proxy.ProxyPath).Subrouter()
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc("", proxy.setup)

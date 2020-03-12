@@ -6,12 +6,12 @@ http:
       listen: ":9002"
       proxies:
         - proxy_pass: https://httpbin.org
-          proxy_path: /get
+          proxy_path: /httpbin
           request_headers:
             - Authentication: Basic 123456
             - Yomama: Pk
         - proxy_pass: https://postman-echo.com
-          proxy_path: /headers
+          proxy_path: /postman
           request_headers:
             - Authentication: Basic 11235453
       domains: [localhost]

@@ -3,7 +3,7 @@
 *.dll
 *.so
 *.dylib
-
+go-reverse-proxy
 # Test binary, build with `go test -c`
 *.test
 

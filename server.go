@@ -64,9 +64,9 @@ func (s *Server) Start() {
 
 	var err error
 	if s.SSL {
-		err = http.ListenAndServeTLS(":"+port, s.CertFile, s.KeyFile, r)
+		err = http.ListenAndServeTLS("0.0.0.0:"+port, s.CertFile, s.KeyFile, r)
 	} else {
-		err = http.ListenAndServe(":"+port, r)
+		err = http.ListenAndServe("0.0.0.0:"+port, r)
 	}
 
 	if err != nil {

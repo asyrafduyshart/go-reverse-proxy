@@ -11,10 +11,10 @@ import (
 
 // Proxy struct file
 type Proxy struct {
-	ProxyPass      *string             `yaml:"proxy_pass"`
-	ProxyPath      *string             `yaml:"proxy_path"`
-	RetainPath     *bool               `default:"false" yaml:"retain_path"`
-	RequestHeaders []map[string]string `yaml:"request_headers"`
+	ProxyPass      *string             `json:"proxy_pass"`
+	ProxyPath      *string             `json:"proxy_path"`
+	RetainPath     *bool               `json:"retain_path" default:"false"`
+	RequestHeaders []map[string]string `json:"request_headers"`
 }
 
 // IsRetainPath proxy path

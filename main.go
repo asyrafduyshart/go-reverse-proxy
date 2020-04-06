@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -10,15 +11,14 @@ import (
 	"syscall"
 
 	log "github.com/asyrafduyshart/go-reverse-proxy/log"
-	yaml "gopkg.in/yaml.v2"
 )
 
 // Config ...
 type Config struct {
-	AccessLog string `yaml:"access_log"`
-	LogLevel  string `yaml:"log_level"`
+	AccessLog string `json:"access_log"`
+	LogLevel  string `json:"log_level"`
 	HTTP      struct {
-		Servers []Server `yaml:"servers,flow"`
+		Servers []Server `json:"servers"`
 	}
 }
 
@@ -32,7 +32,7 @@ const (
 )
 
 var (
-	configPath = flag.String("config", "config.yml", "Configuration Path")
+	configPath = flag.String("config", "config.json", "Configuration Path")
 	cmds       = []string{"start", "stop", "restart"}
 )
 
@@ -91,16 +91,30 @@ func start() *Config {
 
 	flag.Usage = usage
 	flag.Parse()
-	bytes, err := ioutil.ReadFile(*configPath)
+
+	var bytes []byte
+
+	if mp := os.Getenv("CONFIG_SETTING"); mp != "" {
+		bytes = []byte(mp)
+	} else {
+		result, err := ioutil.ReadFile(*configPath)
+		if err != nil {
+			log.Error("%v", err)
+			os.Remove("goinx.pid")
+			os.Exit(0)
+		}
+		bytes = result
+	}
+
+	err := json.Unmarshal([]byte(bytes), &conf)
 	if err != nil {
 		log.Error("%v", err)
+		os.Remove("goinx.pid")
 		os.Exit(0)
 	}
-	err = yaml.Unmarshal(bytes, &conf)
-	if err != nil {
-		log.Error("%v", err)
-		os.Exit(0)
-	}
+
+	fmt.Println(conf)
+
 	return &conf
 }
 
@@ -159,12 +173,13 @@ func main() {
 		log.LogLevelNum = 4
 	}
 
-	log.Debug("Config Content: %v", conf)
+	// log.Debug("Config Content: %v", conf)
 
 	count := 0
 	exitChan := make(chan int)
 	for _, server := range conf.HTTP.Servers {
 		go func(s Server) {
+
 			s.Start()
 			exitChan <- 1
 		}(server)

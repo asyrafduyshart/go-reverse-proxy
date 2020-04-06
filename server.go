@@ -13,16 +13,16 @@ import (
 
 // Server struct file
 type Server struct {
-	Name     string   `yaml:"name"`
-	Listen   string   `yaml:"listen"`
-	Domains  []string `yaml:"domains"`
-	Root     *string  `yaml:"root"`
-	SSL      bool     `yaml:"ssl"`
-	GZIP     bool     `yaml:"gzip"`
-	GFW      bool     `yaml:"gfw"`
-	Proxies  []Proxy  `yaml:"proxies"`
-	KeyFile  string   `yaml:"key_file"`
-	CertFile string   `yaml:"cert_file"`
+	Name     string   `json:"name"`
+	Listen   string   `json:"listen"`
+	Domains  []string `json:"domains"`
+	Root     *string  `json:"root"`
+	SSL      bool     `json:"ssl"`
+	GZIP     bool     `json:"gzip"`
+	GFW      bool     `json:"gfw"`
+	Proxies  []Proxy  `json:"proxies"`
+	KeyFile  string   `json:"key_file"`
+	CertFile string   `json:"cert_file"`
 }
 
 // Keys Return keys of the given map
@@ -43,8 +43,9 @@ func (s *Server) Start() {
 
 	r := mux.NewRouter()
 	for _, proxy := range s.Proxies {
+
 		if proxy.ProxyPass != nil {
-			log.Info("%s listen %s, ssl: %v, proxy to %s", s.Name, s.Listen, s.SSL, *proxy.ProxyPass)
+			log.Info("%s listen %s, ssl: %v, proxy to %s, with path &s", s.Name, s.Listen, s.SSL, *proxy.ProxyPass, *proxy.ProxyPath)
 		}
 
 		r.PathPrefix(*proxy.ProxyPath).Subrouter()

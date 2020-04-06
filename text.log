@@ -1,0 +1,76 @@
+prefix2020/04/06 14:15:04 2020/04/06 14:15:04 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 14:15:04 2020/04/06 14:15:04 [92m[INFO][0m site listen :9001, ssl: false, static dir /web
+prefix2020/04/06 14:15:04 2020/04/06 14:15:04 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://httpbin.org, with path &s%!(EXTRA string=/httpbin)
+prefix2020/04/06 14:15:04 2020/04/06 14:15:04 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://postman-echo.com, with path &s%!(EXTRA string=/postman)
+prefix2020/04/06 14:15:04 2020/04/06 14:15:04 [92m[INFO][0m Config location /web
+prefix2020/04/06 14:15:14 2020/04/06 14:15:14 [92m[INFO][0m Shutown Goinx.
+prefix2020/04/06 14:15:39 2020/04/06 14:15:39 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 14:15:39 2020/04/06 14:15:39 [92m[INFO][0m site listen :9001, ssl: false, static dir /web
+prefix2020/04/06 14:15:39 2020/04/06 14:15:39 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://httpbin.org, with path &s%!(EXTRA string=/httpbin)
+prefix2020/04/06 14:15:39 2020/04/06 14:15:39 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://postman-echo.com, with path &s%!(EXTRA string=/postman)
+prefix2020/04/06 14:15:39 2020/04/06 14:15:39 [92m[INFO][0m Config location /web
+prefix2020/04/06 14:16:16 2020/04/06 14:16:16 [92m[INFO][0m Real URL Path: /httpbin
+prefix2020/04/06 14:16:16 2020/04/06 14:16:16 [92m[INFO][0m Proxied URL: https://httpbin.org
+prefix2020/04/06 14:16:24 2020/04/06 14:16:24 [92m[INFO][0m Real URL Path: /httpbin/get
+prefix2020/04/06 14:16:24 2020/04/06 14:16:24 [92m[INFO][0m Proxied URL: https://httpbin.org/get
+prefix2020/04/06 14:16:30 2020/04/06 14:16:30 [92m[INFO][0m Real URL Path: /postman/get
+prefix2020/04/06 14:16:30 2020/04/06 14:16:30 [92m[INFO][0m Proxied URL: https://postman-echo.com/get
+prefix2020/04/06 14:16:45 2020/04/06 14:16:45 [92m[INFO][0m Shutown Goinx.
+prefix2020/04/06 14:18:09 2020/04/06 14:18:09 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 14:18:09 2020/04/06 14:18:09 [92m[INFO][0m site listen :9001, ssl: false, static dir /web
+prefix2020/04/06 14:18:09 2020/04/06 14:18:09 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://httpbin.org, with path &s%!(EXTRA string=/httpbin)
+prefix2020/04/06 14:18:09 2020/04/06 14:18:09 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://postman-echo.com, with path &s%!(EXTRA string=/postman)
+prefix2020/04/06 14:18:09 2020/04/06 14:18:09 [92m[INFO][0m Config location /web
+prefix2020/04/06 14:18:16 2020/04/06 14:18:16 [92m[INFO][0m Real URL Path: /postman/get
+prefix2020/04/06 14:18:16 2020/04/06 14:18:16 [92m[INFO][0m Proxied URL: https://postman-echo.com/get
+prefix2020/04/06 14:18:35 2020/04/06 14:18:35 [92m[INFO][0m Real URL Path: /postman
+prefix2020/04/06 14:18:35 2020/04/06 14:18:35 [92m[INFO][0m Proxied URL: https://postman-echo.com
+prefix2020/04/06 14:18:42 2020/04/06 14:18:42 [92m[INFO][0m Real URL Path: /postman/get
+prefix2020/04/06 14:18:42 2020/04/06 14:18:42 [92m[INFO][0m Proxied URL: https://postman-echo.com/get
+prefix2020/04/06 14:18:50 2020/04/06 14:18:50 [91m[ERROR][0m dial tcp: lookup postman-echo.com on [fec0:0:0:ffff::2]:53: read udp [2001:0:2851:b9f0:1cfa:2f06:6173:49ff]:49819->[fec0:0:0:ffff::2]:53: i/o timeout
+prefix2020/04/06 14:18:50 2020/04/06 14:18:50 [91m[ERROR][0m dial tcp: lookup postman-echo.com on [fec0:0:0:ffff::2]:53: read udp [2001:0:2851:b9f0:1cfa:2f06:6173:49ff]:49819->[fec0:0:0:ffff::2]:53: i/o timeout
+prefix2020/04/06 14:18:50 2020/04/06 14:18:50 [91m[ERROR][0m dial tcp: lookup postman-echo.com on [fec0:0:0:ffff::2]:53: read udp [2001:0:2851:b9f0:1cfa:2f06:6173:49ff]:49819->[fec0:0:0:ffff::2]:53: i/o timeout
+prefix2020/04/06 14:19:19 2020/04/06 14:19:19 [92m[INFO][0m Shutown Goinx.
+prefix2020/04/06 14:26:48 2020/04/06 14:26:48 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 14:26:48 2020/04/06 14:26:48 [92m[INFO][0m site listen :9001, ssl: false, static dir /web
+prefix2020/04/06 14:26:48 2020/04/06 14:26:48 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://httpbin.org, with path &s%!(EXTRA string=/httpbin)
+prefix2020/04/06 14:26:48 2020/04/06 14:26:48 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://postman-echo.com, with path &s%!(EXTRA string=/postman)
+prefix2020/04/06 14:26:48 2020/04/06 14:26:48 [92m[INFO][0m Config location /web
+prefix2020/04/06 14:26:55 2020/04/06 14:26:55 [92m[INFO][0m Real URL Path: /postman/get
+prefix2020/04/06 14:26:55 2020/04/06 14:26:55 [92m[INFO][0m Proxied URL: https://postman-echo.com/get
+prefix2020/04/06 14:27:02 2020/04/06 14:27:02 [92m[INFO][0m Real URL Path: /postman/get
+prefix2020/04/06 14:27:02 2020/04/06 14:27:02 [92m[INFO][0m Proxied URL: https://postman-echo.com/get
+prefix2020/04/06 14:27:04 2020/04/06 14:27:04 [92m[INFO][0m Real URL Path: /postman/get
+prefix2020/04/06 14:27:04 2020/04/06 14:27:04 [92m[INFO][0m Proxied URL: https://postman-echo.com/get
+prefix2020/04/06 14:27:05 2020/04/06 14:27:05 [92m[INFO][0m Real URL Path: /postman/get
+prefix2020/04/06 14:27:05 2020/04/06 14:27:05 [92m[INFO][0m Proxied URL: https://postman-echo.com/get
+prefix2020/04/06 14:27:11 2020/04/06 14:27:11 [92m[INFO][0m Real URL Path: /httpbin/get
+prefix2020/04/06 14:27:11 2020/04/06 14:27:11 [92m[INFO][0m Proxied URL: https://httpbin.org/get
+prefix2020/04/06 14:29:21 2020/04/06 14:29:21 [92m[INFO][0m Shutown Goinx.
+prefix2020/04/06 14:29:29 2020/04/06 14:29:29 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 14:29:29 2020/04/06 14:29:29 [92m[INFO][0m site listen :9001, ssl: false, static dir /web
+prefix2020/04/06 14:29:29 2020/04/06 14:29:29 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://httpbin.org, with path &s%!(EXTRA string=/httpbin)
+prefix2020/04/06 14:29:29 2020/04/06 14:29:29 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://postman-echo.com, with path &s%!(EXTRA string=/postman)
+prefix2020/04/06 14:29:29 2020/04/06 14:29:29 [92m[INFO][0m Config location /web
+prefix2020/04/06 14:29:51 2020/04/06 14:29:51 [92m[INFO][0m Real URL Path: /httpbin/get
+prefix2020/04/06 14:29:51 2020/04/06 14:29:51 [92m[INFO][0m Proxied URL: https://httpbin.org/get
+prefix2020/04/06 14:45:24 2020/04/06 14:45:24 [92m[INFO][0m Shutown Goinx.
+prefix2020/04/06 15:00:22 2020/04/06 15:00:22 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 15:00:22 2020/04/06 15:00:22 [92m[INFO][0m site listen :9001, ssl: false, static dir /web
+prefix2020/04/06 15:00:22 2020/04/06 15:00:22 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://httpbin.org, with path &s%!(EXTRA string=/httpbin)
+prefix2020/04/06 15:00:22 2020/04/06 15:00:22 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://postman-echo.com, with path &s%!(EXTRA string=/postman)
+prefix2020/04/06 15:00:22 2020/04/06 15:00:22 [92m[INFO][0m Config location /web
+prefix2020/04/06 15:00:22 2020/04/06 15:00:22 [92m[INFO][0m Shutown Goinx.
+prefix2020/04/06 15:00:50 2020/04/06 15:00:50 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 15:00:50 2020/04/06 15:00:50 [92m[INFO][0m site listen :9001, ssl: false, static dir /web
+prefix2020/04/06 15:00:50 2020/04/06 15:00:50 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://httpbin.org, with path &s%!(EXTRA string=/httpbin)
+prefix2020/04/06 15:00:50 2020/04/06 15:00:50 [92m[INFO][0m site listen :9001, ssl: false, proxy to https://postman-echo.com, with path &s%!(EXTRA string=/postman)
+prefix2020/04/06 15:00:50 2020/04/06 15:00:50 [92m[INFO][0m Config location /web
+prefix2020/04/06 15:00:51 2020/04/06 15:00:51 [92m[INFO][0m Shutown Goinx.
+prefix2020/04/06 15:01:18 2020/04/06 15:01:18 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 15:21:26 2020/04/06 15:21:26 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 15:21:26 2020/04/06 15:21:26 [91m[ERROR][0m listen tcp: address 9001: missing port in address
+prefix2020/04/06 15:21:53 2020/04/06 15:21:53 [95m[WARN][0m Goinx has bean started.
+prefix2020/04/06 15:23:00 2020/04/06 15:23:00 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 15:23:48 2020/04/06 15:23:48 [92m[INFO][0m Start Goinx.
+prefix2020/04/06 15:24:43 2020/04/06 15:24:43 [92m[INFO][0m Start Goinx.

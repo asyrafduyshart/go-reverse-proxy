@@ -6,4 +6,4 @@ services:
     environment:
       CONFIG_SETTING: '{"log_level":"info","access_log":null,"http":{"servers":[{"name":"site","listen":":9001","proxies":[{"proxy_pass":"https:\/\/httpbin.org","proxy_path":"\/httpbin","request_headers":[{"Authentication":"Basic 123456"},{"Yomama":"Pk"}]},{"proxy_pass":"https:\/\/postman-echo.com","proxy_path":"\/postman","request_headers":[{"Authentication":"Basic 11235453"}]}],"domains":["localhost"],"root":"\/web"}]}}'
     ports:
-     - "9999:9999"
+     - "9001:9001"

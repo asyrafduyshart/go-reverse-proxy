@@ -60,11 +60,13 @@ func (s *Server) Start() {
 		r.PathPrefix("/").Handler(http.FileServer(http.Dir("." + pathLocation)))
 	}
 
+	port := getenv("PORT", s.Listen)
+
 	var err error
 	if s.SSL {
-		err = http.ListenAndServeTLS(s.Listen, s.CertFile, s.KeyFile, r)
+		err = http.ListenAndServeTLS(":"+port, s.CertFile, s.KeyFile, r)
 	} else {
-		err = http.ListenAndServe(s.Listen, r)
+		err = http.ListenAndServe(":"+port, r)
 	}
 
 	if err != nil {

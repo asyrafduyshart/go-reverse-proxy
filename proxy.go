@@ -63,31 +63,6 @@ func (p Proxy) setup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if resp.StatusCode == 301 || resp.StatusCode == 302 {
-	// 	location := resp.Header.Get("Location")
-	// 	pathURL = location + replaceStringFirstOccurance(r.RequestURI, *p.ProxyPath, "")
-	// 	for k, v := range resp.Header {
-	// 		fmt.Print(k)
-	// 		fmt.Print(" : ")
-	// 		fmt.Println(v)
-	// 	}
-	// 	log.Info("Location: %s", location)
-	// 	req, err = http.NewRequest(r.Method, pathURL, r.Body)
-	// 	req.Header.Set("Accept", r.Header.Get("Accept"))
-	// 	req.Header.Set("Accept-Encoding", r.Header.Get("Accept-Encoding"))
-	// 	req.Header.Set("Accept-Language", r.Header.Get("Accept-Language"))
-	// 	req.Header.Set("Cache-Control", "no-cache")
-	// 	req.Header.Set("Pragma", "no-cache")
-	// 	req.Header.Set("User-Agent", r.Header.Get("User-Agent"))
-	// 	req.Header.Set("Cookie", r.Header.Get("Cookie"))
-
-	// 	resp, err = transport.RoundTrip(req)
-	// 	if err != nil {
-	// 		log.Error("%v", err)
-	// 		return
-	// 	}
-	// }
-
 	for k, v := range resp.Header {
 		for _, vv := range v {
 			w.Header().Add(k, vv)

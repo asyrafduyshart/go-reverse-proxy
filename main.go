@@ -112,9 +112,6 @@ func start() *Config {
 		os.Remove("goinx.pid")
 		os.Exit(0)
 	}
-
-	fmt.Println(conf)
-
 	return &conf
 }
 

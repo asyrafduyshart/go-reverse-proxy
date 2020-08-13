@@ -3,6 +3,7 @@
 *.dll
 *.so
 *.dylib
+*.log
 go-reverse-proxy
 # Test binary, build with `go test -c`
 *.test
@@ -16,3 +17,5 @@ go-reverse-proxy
 goinx
 web/
 www/
+postman
+text.log

@@ -71,14 +71,11 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, err = os.Stat(checkPath)
 	if os.IsNotExist(err) {
 		// file does not exist, serve index.html
-		log.Info("not exist path %s", err)
-		log.Info("current path %s", path)
 		http.ServeFile(w, r, filepath.Join(path, h.indexPath))
 		return
 	} else if err != nil {
 		// if we got an error (that wasn't that the file doesn't exist) stating the
 		// file, return a 500 internal server error and stop
-		log.Info("File not found", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

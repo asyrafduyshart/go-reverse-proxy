@@ -12,6 +12,19 @@ Multiple domain reverse proxy with golang
 
 **By Golang**
 
+## Build File
+```bash
+go install
+
+go build //Windows
+
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build // To run in alpine
+
+```
+
+
+## Run File
+
 ```bash
 » ./goinx
 Author: asyrafduyshart
@@ -27,20 +40,47 @@ Options:
 
 ## Config File
 
-```yaml
-log_level: info
-access_log:
-http:
-  servers:
-    - name: site1
-      listen: ":9001"
-      domains: [localhost]
-      proxy_pass: http://httpbin.org/get
-      cert_file:
-      key_file:
-    - name: site2
-      listen: ":9002"
-      gfw: true
-      domains: [http://nmhclbwvtxzkdfsr.neverssl.com/]
-      proxy_pass: "http://nmhclbwvtxzkdfsr.neverssl.com/"
+```json
+{
+    "log_level": "debug",
+    "access_log": null,
+    "http": {
+        "servers": [
+            {
+                "name": "site2"
+            },
+            {
+                "name": "site",
+                "listen": "9001",
+                "proxies": [
+                    {
+                        "proxy_pass": "https://httpbin.org",
+                        "proxy_path": "/httpbin",
+                        "request_headers": [
+                            {
+                                "Authentication": "Basic 123456"
+                            },
+                            {
+                                "Yomama": "Pk"
+                            }
+                        ]
+                    },
+                    {
+                        "proxy_pass": "https://postman-echo.com",
+                        "proxy_path": "/postman",
+                        "request_headers": [
+                            {
+                                "Authentication": "Basic 11235453"
+                            }
+                        ]
+                    }
+                ],
+                "domains": [
+                    "localhost"
+                ],
+                "root": "www"
+            }
+        ]
+    }
+}
 ```

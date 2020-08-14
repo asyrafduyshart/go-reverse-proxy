@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -129,20 +128,4 @@ func (s *Server) Start() {
 var transport = &http.Transport{
 	ResponseHeaderTimeout: 30 * time.Second,
 	TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
-}
-
-func notFound(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "www/index.html")
-}
-
-func singleJoiningSlash(a, b string) string {
-	aslash := strings.HasSuffix(a, "/")
-	bslash := strings.HasPrefix(b, "/")
-	switch {
-	case aslash && bslash:
-		return a + b[1:]
-	case !aslash && !bslash:
-		return a + "/" + b
-	}
-	return a + b
 }

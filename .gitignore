@@ -18,4 +18,4 @@ goinx
 web/
 www/
 postman
-text.log
+*.log

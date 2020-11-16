@@ -30,12 +30,16 @@
                                 "Authentication": "Basic 11235453"
                             }
                         ]
+                    },
+                    {
+                        "proxy_pass": "https://www.w3schools.com",
+                        "proxy_path": "/w3",
+                        "request_headers": []
                     }
                 ],
                 "domains": [
                     "localhost"
-                ],
-                "root": "www"
+                ]
             }
         ]
     }

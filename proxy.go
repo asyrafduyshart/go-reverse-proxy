@@ -30,15 +30,13 @@ func (p Proxy) getProxyPath(strEx string) string {
 
 // setup create proxy
 func (p Proxy) setup(w http.ResponseWriter, r *http.Request) {
-
 	pathURL := *p.ProxyPass + p.getProxyPath(r.RequestURI)
+
+	log.Info("Proxied URL: %s", pathURL)
 
 	if !p.IsRetainPath() {
 		pathURL = *p.ProxyPass + r.RequestURI
 	}
-
-	log.Info("Real URL Path: %s", r.RequestURI)
-	log.Info("Proxied URL: %s", pathURL)
 
 	req, err := http.NewRequest(r.Method, pathURL, r.Body)
 	for name, values := range r.Header {
@@ -68,7 +66,7 @@ func (p Proxy) setup(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add(k, vv)
 		}
 	}
-	w.Header().Add("Cache-Control", "no-cache")
+
 	w.Header().Add("Content-Type", resp.Header.Get("Content-Type"))
 
 	if err != nil {
@@ -76,7 +74,11 @@ func (p Proxy) setup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, _ := ioutil.ReadAll(resp.Body)
+	data, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		log.Error("%v", err)
+	}
 	defer resp.Body.Close()
 	w.WriteHeader(resp.StatusCode)
 	w.Write(data)

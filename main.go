@@ -53,6 +53,7 @@ func startArgs() *Config {
 	}
 
 	cmd := os.Args[1]
+
 	if !Contains(cmds, cmd) {
 		usage()
 		os.Exit(0)
@@ -85,7 +86,7 @@ func start() *Config {
 	if pid := os.Getpid(); pid != 1 {
 		err := ioutil.WriteFile(PidFile, []byte(strconv.Itoa(pid)), 0777)
 		if err != nil {
-			fmt.Println(err)
+			log.Error("%v", err)
 		}
 	}
 
@@ -94,10 +95,20 @@ func start() *Config {
 
 	var bytes []byte
 
+	// Take length of string with len.
+
 	if mp := os.Getenv("CONFIG_SETTING"); mp != "" {
 		bytes = []byte(mp)
 	} else {
-		result, err := ioutil.ReadFile(*configPath)
+		cl := *configPath
+
+		if len(os.Args) > 3 && os.Args[2] == "--config" {
+			if os.Args[3] != "" {
+				cl = os.Args[3]
+			}
+		}
+
+		result, err := ioutil.ReadFile(cl)
 		if err != nil {
 			log.Error("%v", err)
 			os.Remove("goinx.pid")
@@ -118,16 +129,15 @@ func start() *Config {
 func stop() {
 	bytes, err := ioutil.ReadFile(PidFile)
 	if err != nil {
-		fmt.Println(err)
+		log.Error("%v", err)
 		os.Exit(0)
 	}
 
 	pid, err := strconv.Atoi(string(bytes))
 	log.Info("Stopping " + strconv.Itoa(pid))
 
-	fmt.Println()
 	if err != nil {
-		fmt.Println(err)
+		log.Error("%v", err)
 	}
 	os.Exit(0)
 	os.Remove("goinx.pid")
@@ -170,7 +180,7 @@ func main() {
 		log.LogLevelNum = 4
 	}
 
-	// log.Debug("Config Content: %v", conf)
+	log.Debug("Config Content: %v", conf)
 
 	count := 0
 	exitChan := make(chan int)

@@ -101,7 +101,7 @@ func (s *Server) Start() {
 		r.PathPrefix(*proxy.ProxyPath).Subrouter()
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc("", proxy.setup)
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc("/", proxy.setup)
-		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc(`/{rest:[a-zA-Z0-9=.?\-\/]+}`, proxy.setup)
+		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc(`/{rest:[a-zA-Z0-9=.?\-_\/]+}`, proxy.setup)
 	}
 
 	if s.Root != nil {

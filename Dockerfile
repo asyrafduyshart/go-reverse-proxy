@@ -1,14 +1,19 @@
-FROM golang:alpine
+FROM golang:alpine AS builder
 
-ENV APP_NAME go-proxy
-ENV PORT 9999
+COPY . /go/src
+WORKDIR /go/src
 
-COPY . /go/src/${APP_NAME}
-WORKDIR /go/src/${APP_NAME}
+RUN ls
 
 RUN go get ./
-RUN go build -o ${APP_NAME}
+RUN go build -o app
 
-CMD ./${APP_NAME} start
+FROM alpine:latest  
 
-EXPOSE ${PORT}
+WORKDIR /root/
+
+COPY --from=builder /go/src/app app
+RUN ls
+RUN chmod 0755 ./app
+
+CMD ./app start

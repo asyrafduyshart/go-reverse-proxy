@@ -2,12 +2,15 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jpillora/ipfilter"
 
 	log "github.com/asyrafduyshart/go-reverse-proxy/log"
 )
@@ -84,7 +87,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Start the server
-func (s *Server) Start() {
+func (s *Server) Start(whitelistIpUrl string) {
 
 	if s.Root != nil {
 		log.Info("%s listen %s, ssl: %v, static dir %s", s.Name, s.Listen, s.SSL, *s.Root)
@@ -113,11 +116,47 @@ func (s *Server) Start() {
 
 	port := getenv("PORT", s.Listen)
 
+	ipFilterEnabled := len(whitelistIpUrl) != 0
+
+	f := ipfilter.New(ipfilter.Options{
+		BlockByDefault: ipFilterEnabled,
+	})
+
+	// If ip filter is enabled then request data accordingly
+	if ipFilterEnabled {
+		go func() {
+			resp, err := http.Get(whitelistIpUrl)
+			if err != nil {
+				log.Error("error %v", err)
+				return
+			}
+
+			// read json http response
+			jsonDataFromHttp, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Error("error %v", err)
+				return
+			}
+			var ips []string
+
+			err = json.Unmarshal([]byte(jsonDataFromHttp), &ips)
+			if err != nil {
+				log.Error("error %v", err)
+				return
+			}
+			for i := range ips {
+				f.AllowIP(ips[i])
+			}
+		}()
+	}
+
+	myProtectedHandler := f.Wrap(r)
+
 	var err error
 	if s.SSL {
-		err = http.ListenAndServeTLS("0.0.0.0:"+port, s.CertFile, s.KeyFile, r)
+		err = http.ListenAndServeTLS("0.0.0.0:"+port, s.CertFile, s.KeyFile, myProtectedHandler)
 	} else {
-		err = http.ListenAndServe("0.0.0.0:"+port, r)
+		err = http.ListenAndServe("0.0.0.0:"+port, myProtectedHandler)
 	}
 
 	if err != nil {

@@ -39,6 +39,10 @@ func (p Proxy) setup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req, err := http.NewRequest(r.Method, pathURL, r.Body)
+	if err != nil {
+		log.Error("%v", err)
+		return
+	}
 	for name, values := range r.Header {
 		// Loop over all values for the name.
 		for _, value := range values {
@@ -67,7 +71,7 @@ func (p Proxy) setup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Header().Add("Content-Type", resp.Header.Get("Content-Type"))
+	// w.Header().Add("Content-Type", resp.Header.Get("Content-Type"))
 
 	if err != nil {
 		log.Error("%v", err)

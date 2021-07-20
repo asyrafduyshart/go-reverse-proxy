@@ -1,6 +1,7 @@
 {
     "log_level": "debug",
     "access_log": null,
+    "default_ip_whitelist": "127.0.0.1",
     "http": {
         "servers": [
             {

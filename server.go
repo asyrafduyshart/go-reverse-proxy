@@ -125,6 +125,7 @@ func (s *Server) Start(conf *Config) {
 	f := ipfilter.New(ipfilter.Options{
 		BlockByDefault: ipUrlFilterEnabled || ipDefaultEnabled,
 		AllowedIPs:     defaultIps,
+		TrustProxy:     true,
 	})
 
 	// If ip filter is enabled then request data accordingly

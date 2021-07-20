@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -87,7 +88,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Start the server
-func (s *Server) Start(whitelistIpUrl string) {
+func (s *Server) Start(conf *Config) {
 
 	if s.Root != nil {
 		log.Info("%s listen %s, ssl: %v, static dir %s", s.Name, s.Listen, s.SSL, *s.Root)
@@ -116,16 +117,20 @@ func (s *Server) Start(whitelistIpUrl string) {
 
 	port := getenv("PORT", s.Listen)
 
-	ipFilterEnabled := len(whitelistIpUrl) != 0
+	ipUrlFilterEnabled := len(conf.IpWhiteListUrl) != 0
+	ipDefaultEnabled := len(conf.DefaultIpWhitelist) != 0
+
+	defaultIps := strings.Split(conf.DefaultIpWhitelist, ",")
 
 	f := ipfilter.New(ipfilter.Options{
-		BlockByDefault: ipFilterEnabled,
+		BlockByDefault: ipUrlFilterEnabled || ipDefaultEnabled,
+		AllowedIPs:     defaultIps,
 	})
 
 	// If ip filter is enabled then request data accordingly
-	if ipFilterEnabled {
+	if ipUrlFilterEnabled {
 		go func() {
-			resp, err := http.Get(whitelistIpUrl)
+			resp, err := http.Get(conf.IpWhiteListUrl)
 			if err != nil {
 				log.Error("error %v", err)
 				return

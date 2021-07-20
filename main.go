@@ -15,10 +15,11 @@ import (
 
 // Config ...
 type Config struct {
-	AccessLog      string `json:"access_log"`
-	LogLevel       string `json:"log_level"`
-	IpWhiteListUrl string `json:"ip_whitelist_url"`
-	HTTP           struct {
+	AccessLog          string `json:"access_log"`
+	LogLevel           string `json:"log_level"`
+	IpWhiteListUrl     string `json:"ip_whitelist_url"`
+	DefaultIpWhitelist string `json:"default_ip_whitelist"`
+	HTTP               struct {
 		Servers []Server `json:"servers"`
 	}
 }
@@ -188,7 +189,7 @@ func main() {
 	for _, server := range conf.HTTP.Servers {
 		go func(s Server) {
 			// loop through
-			s.Start(conf.IpWhiteListUrl)
+			s.Start(conf)
 			exitChan <- 1
 		}(server)
 		count++

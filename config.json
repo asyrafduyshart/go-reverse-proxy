@@ -8,6 +8,22 @@
                 "name": "site2"
             },
             {
+                "name": "site4",
+                "root" : "web",
+                "listen": "9005"
+            },
+            {
+                "name": "site3",
+                "listen": "9004",
+                "files": [
+                    {
+                        "path" : "pp-casino",
+                        "location" : "web",
+                        "index" : "pragmatic-live-casino.html"
+                    }
+                ]
+            },
+            {
                 "name": "site",
                 "listen": "9001",
                 "proxies": [

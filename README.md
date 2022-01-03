@@ -50,6 +50,17 @@ Options:
                 "name": "site2"
             },
             {
+                "name": "site3",
+                "listen": "9003",
+                "files": [
+                    {
+                        "path" : "example-path",
+                        "location" : "index-path",
+                        "index" : "index.html"
+                    }
+                ]
+            },
+            {
                 "name": "site",
                 "listen": "9001",
                 "proxies": [

@@ -25,9 +25,16 @@ type Server struct {
 	SSL      bool     `json:"ssl"`
 	GZIP     bool     `json:"gzip"`
 	GFW      bool     `json:"gfw"`
+	Files    []Files  `json:"files"`
 	Proxies  []Proxy  `json:"proxies"`
 	KeyFile  string   `json:"key_file"`
 	CertFile string   `json:"cert_file"`
+}
+
+type Files struct {
+	Path     string
+	Location string
+	Index    string
 }
 
 // Keys Return keys of the given map
@@ -95,6 +102,26 @@ func (s *Server) Start(conf *Config) {
 	}
 
 	r := mux.NewRouter()
+	if s.Root != nil {
+		pathLocation := *s.Root
+		log.Info("Config location %s", pathLocation)
+		spa := spaHandler{staticPath: pathLocation, indexPath: "index.html"}
+		r.PathPrefix("/").Handler(spa)
+	}
+
+	if s.Files != nil {
+		index := "index.html"
+		for _, files := range s.Files {
+			pathLocation := files.Location
+			if files.Index != "" {
+				index = files.Index
+			}
+			spa := spaHandler{staticPath: pathLocation, indexPath: index}
+			r.PathPrefix("/").Handler(spa)
+			log.Info("%s listen %s, ssl: %v, proxy from %s ==> %s", s.Name, s.Listen, s.SSL, index, files.Path)
+		}
+
+	}
 
 	for _, proxy := range s.Proxies {
 
@@ -106,13 +133,6 @@ func (s *Server) Start(conf *Config) {
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc("", proxy.setup)
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc("/", proxy.setup)
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc(`/{rest:[a-zA-Z0-9=.?\-~_\/]+}`, proxy.setup)
-	}
-
-	if s.Root != nil {
-		pathLocation := *s.Root
-		log.Info("Config location %s", pathLocation)
-		spa := spaHandler{staticPath: pathLocation, indexPath: "index.html"}
-		r.PathPrefix("/").Handler(spa)
 	}
 
 	port := getenv("PORT", s.Listen)

@@ -13,7 +13,7 @@ VERSION=`date -u +%Y%m%d`
 LDFLAGS="-s -w"
 GCFLAGS=""
 
-OSES=(linux windows)
+OSES=(linux windows)d
 ARCHS=(amd64 386)
 for os in ${OSES[@]}; do
 	for arch in ${ARCHS[@]}; do

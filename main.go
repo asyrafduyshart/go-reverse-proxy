@@ -22,6 +22,9 @@ type Config struct {
 	HTTP               struct {
 		Servers []Server `json:"servers"`
 	}
+	RedisUrl   string `json:"redis_url"`
+	RedisKey   string `json:"redis_key"`
+	RedisField string `json:"redis_field"`
 }
 
 const (
@@ -165,10 +168,11 @@ func shutdownHook() {
 func main() {
 
 	shutdownHook()
-
 	conf := startArgs()
 	log.Info("Start Goinx.")
 
+	RedisInit(conf.RedisUrl)
+	
 	if conf.LogLevel == "debug" {
 		log.LogLevelNum = 1
 	}

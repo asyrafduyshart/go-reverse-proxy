@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -117,7 +118,9 @@ func (s *Server) Start(conf *Config) {
 				index = files.Index
 			}
 			spa := spaHandler{staticPath: pathLocation, indexPath: index}
-			r.PathPrefix("/").Handler(spa)
+			r.PathPrefix(files.Path).Subrouter()
+			r.PathPrefix(files.Path).Subrouter().HandleFunc("", spa.ServeHTTP)
+			r.PathPrefix(files.Path).Subrouter().HandleFunc("/", spa.ServeHTTP)
 			log.Info("%s listen %s, ssl: %v, proxy from %s ==> %s", s.Name, s.Listen, s.SSL, index, files.Path)
 		}
 
@@ -137,13 +140,31 @@ func (s *Server) Start(conf *Config) {
 
 	port := getenv("PORT", s.Listen)
 
+	redisUrlStatus := len(conf.RedisUrl) != 0
+	redisKeyStatus := len(conf.RedisKey) != 0
+	redisFieldStatus := len(conf.RedisField) != 0
+
+	redisIpEnable := redisUrlStatus && redisKeyStatus && redisFieldStatus
+
+	if !redisIpEnable {
+		log.Error("error %v", "Please set redis config properly")
+	}
+
 	ipUrlFilterEnabled := len(conf.IpWhiteListUrl) != 0
 	ipDefaultEnabled := len(conf.DefaultIpWhitelist) != 0
 
+	redisIp, errRedis := GetKeyField(conf.RedisKey, conf.RedisField)
+
+	if errRedis != nil {
+		log.Error("error %v", errRedis)
+	}
+	redisIps := strings.Split(redisIp, ",")
+	fmt.Println("redis ip :", redisIps)
 	defaultIps := strings.Split(conf.DefaultIpWhitelist, ",")
+	defaultIps = append(defaultIps, redisIps...)
 
 	f := ipfilter.New(ipfilter.Options{
-		BlockByDefault: ipUrlFilterEnabled || ipDefaultEnabled,
+		BlockByDefault: ipUrlFilterEnabled || ipDefaultEnabled || redisIpEnable,
 		AllowedIPs:     defaultIps,
 		TrustProxy:     true,
 	})

@@ -44,6 +44,11 @@ Options:
 {
     "log_level": "debug",
     "access_log": null,
+    "redis" : {
+        "url" : "redis://localhost:6379",
+        "key" : "user:config",
+        "field": "ip_whitelist"
+    },
     "http": {
         "servers": [
             {

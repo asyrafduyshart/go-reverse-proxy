@@ -3,11 +3,11 @@ package main
 import (
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -140,28 +140,38 @@ func (s *Server) Start(conf *Config) {
 
 	port := getenv("PORT", s.Listen)
 
-	redisUrlStatus := len(conf.RedisUrl) != 0
-	redisKeyStatus := len(conf.RedisKey) != 0
-	redisFieldStatus := len(conf.RedisField) != 0
-
-	redisIpEnable := redisUrlStatus && redisKeyStatus && redisFieldStatus
-
-	if !redisIpEnable {
-		log.Error("error %v", "Please set redis config properly")
-	}
-
 	ipUrlFilterEnabled := len(conf.IpWhiteListUrl) != 0
 	ipDefaultEnabled := len(conf.DefaultIpWhitelist) != 0
 
-	redisIp, errRedis := GetKeyField(conf.RedisKey, conf.RedisField)
-
-	if errRedis != nil {
-		log.Error("error %v", errRedis)
-	}
-	redisIps := strings.Split(redisIp, ",")
-	fmt.Println("redis ip :", redisIps)
 	defaultIps := strings.Split(conf.DefaultIpWhitelist, ",")
-	defaultIps = append(defaultIps, redisIps...)
+
+	redisUrlStatus := len(conf.Redis.Url) != 0
+	redisKeyStatus := len(conf.Redis.Key) != 0
+	redisFieldStatus := len(conf.Redis.Field) != 0
+	redisIpEnable := false
+	if redisUrlStatus {
+		if !(redisKeyStatus && redisFieldStatus) {
+			log.Error("error %v", "Please set redis config properly")
+			return
+		} else {
+			redisIpEnable = true
+		}
+		
+		redisIp, errRedis := GetKeyField(conf.Redis.Key, conf.Redis.Field)
+		if errRedis != nil {
+			log.Error("error %v", errRedis)
+		}
+
+		match, _ := regexp.MatchString("^[0-9.,/]*$", redisIp)
+
+		if !match {
+			log.Error("error %v", "redis "+conf.Redis.Field+" not valid. eg : 10.0.0.1,10.0.0.2,10.0.0/4")
+			return
+		}
+
+		redisIps := strings.Split(redisIp, ",")
+		defaultIps = append(defaultIps, redisIps...)
+	}
 
 	f := ipfilter.New(ipfilter.Options{
 		BlockByDefault: ipUrlFilterEnabled || ipDefaultEnabled || redisIpEnable,

@@ -1,9 +1,11 @@
 {
     "log_level": "debug",
     "access_log": null,
-    "redis_url" : "redis://localhost:6379",
-    "redis_key" : "config:company:lexus57",
-    "redis_field" : "ip_whitelist",
+    "redis" : {
+        "url" : "redis://localhost:6379",
+        "key" : "user:key",
+        "field": "ip_whitelist"
+    },
     "http": {
         "servers": [
             {

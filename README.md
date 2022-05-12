@@ -44,10 +44,26 @@ Options:
 {
     "log_level": "debug",
     "access_log": null,
+    "redis" : {
+        "url" : "redis://localhost:6379",
+        "key" : "user:config",
+        "field": "ip_whitelist"
+    },
     "http": {
         "servers": [
             {
                 "name": "site2"
+            },
+            {
+                "name": "site3",
+                "listen": "9003",
+                "files": [
+                    {
+                        "path" : "example-path",
+                        "location" : "index-path",
+                        "index" : "index.html"
+                    }
+                ]
             },
             {
                 "name": "site",

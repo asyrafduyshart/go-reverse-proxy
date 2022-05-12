@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -25,9 +26,16 @@ type Server struct {
 	SSL      bool     `json:"ssl"`
 	GZIP     bool     `json:"gzip"`
 	GFW      bool     `json:"gfw"`
+	Files    []Files  `json:"files"`
 	Proxies  []Proxy  `json:"proxies"`
 	KeyFile  string   `json:"key_file"`
 	CertFile string   `json:"cert_file"`
+}
+
+type Files struct {
+	Path     string
+	Location string
+	Index    string
 }
 
 // Keys Return keys of the given map
@@ -95,6 +103,28 @@ func (s *Server) Start(conf *Config) {
 	}
 
 	r := mux.NewRouter()
+	if s.Root != nil {
+		pathLocation := *s.Root
+		log.Info("Config location %s", pathLocation)
+		spa := spaHandler{staticPath: pathLocation, indexPath: "index.html"}
+		r.PathPrefix("/").Handler(spa)
+	}
+
+	if s.Files != nil {
+		index := "index.html"
+		for _, files := range s.Files {
+			pathLocation := files.Location
+			if files.Index != "" {
+				index = files.Index
+			}
+			spa := spaHandler{staticPath: pathLocation, indexPath: index}
+			r.PathPrefix(files.Path).Subrouter()
+			r.PathPrefix(files.Path).Subrouter().HandleFunc("", spa.ServeHTTP)
+			r.PathPrefix(files.Path).Subrouter().HandleFunc("/", spa.ServeHTTP)
+			log.Info("%s listen %s, ssl: %v, proxy from %s ==> %s", s.Name, s.Listen, s.SSL, index, files.Path)
+		}
+
+	}
 
 	for _, proxy := range s.Proxies {
 
@@ -108,13 +138,6 @@ func (s *Server) Start(conf *Config) {
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc(`/{rest:[a-zA-Z0-9=.?\-~_\/]+}`, proxy.setup)
 	}
 
-	if s.Root != nil {
-		pathLocation := *s.Root
-		log.Info("Config location %s", pathLocation)
-		spa := spaHandler{staticPath: pathLocation, indexPath: "index.html"}
-		r.PathPrefix("/").Handler(spa)
-	}
-
 	port := getenv("PORT", s.Listen)
 
 	ipUrlFilterEnabled := len(conf.IpWhiteListUrl) != 0
@@ -122,8 +145,36 @@ func (s *Server) Start(conf *Config) {
 
 	defaultIps := strings.Split(conf.DefaultIpWhitelist, ",")
 
+	redisUrlStatus := len(conf.Redis.Url) != 0
+	redisKeyStatus := len(conf.Redis.Key) != 0
+	redisFieldStatus := len(conf.Redis.Field) != 0
+	redisIpEnable := false
+	if redisUrlStatus {
+		if !(redisKeyStatus && redisFieldStatus) {
+			log.Error("error %v", "Please set redis config properly")
+			return
+		} else {
+			redisIpEnable = true
+		}
+		
+		redisIp, errRedis := GetKeyField(conf.Redis.Key, conf.Redis.Field)
+		if errRedis != nil {
+			log.Error("error %v", errRedis)
+		}
+
+		match, _ := regexp.MatchString("^[0-9.,/]*$", redisIp)
+
+		if !match {
+			log.Error("error %v", "redis "+conf.Redis.Field+" not valid. eg : 10.0.0.1,10.0.0.2,10.0.0/4")
+			return
+		}
+
+		redisIps := strings.Split(redisIp, ",")
+		defaultIps = append(defaultIps, redisIps...)
+	}
+
 	f := ipfilter.New(ipfilter.Options{
-		BlockByDefault: ipUrlFilterEnabled || ipDefaultEnabled,
+		BlockByDefault: ipUrlFilterEnabled || ipDefaultEnabled || redisIpEnable,
 		AllowedIPs:     defaultIps,
 		TrustProxy:     true,
 	})

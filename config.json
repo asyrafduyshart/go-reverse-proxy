@@ -1,11 +1,31 @@
 {
     "log_level": "debug",
     "access_log": null,
-    "default_ip_whitelist": "127.0.0.1",
+    "redis" : {
+        "url" : "redis://localhost:6379",
+        "key" : "user:key",
+        "field": "ip_whitelist"
+    },
     "http": {
         "servers": [
             {
                 "name": "site2"
+            },
+            {
+                "name": "site4",
+                "root" : "web",
+                "listen": "9005"
+            },
+            {
+                "name": "site3",
+                "listen": "9004",
+                "files": [
+                    {
+                        "path" : "pp-casino",
+                        "location" : "web",
+                        "index" : "pragmatic-live-casino.html"
+                    }
+                ]
             },
             {
                 "name": "site",

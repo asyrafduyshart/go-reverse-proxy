@@ -103,12 +103,6 @@ func (s *Server) Start(conf *Config) {
 	}
 
 	r := mux.NewRouter()
-	if s.Root != nil {
-		pathLocation := *s.Root
-		log.Info("Config location %s", pathLocation)
-		spa := spaHandler{staticPath: pathLocation, indexPath: "index.html"}
-		r.PathPrefix("/").Handler(spa)
-	}
 
 	if s.Files != nil {
 		index := "index.html"
@@ -123,7 +117,6 @@ func (s *Server) Start(conf *Config) {
 			r.PathPrefix(files.Path).Subrouter().HandleFunc("/", spa.ServeHTTP)
 			log.Info("%s listen %s, ssl: %v, proxy from %s ==> %s", s.Name, s.Listen, s.SSL, index, files.Path)
 		}
-
 	}
 
 	for _, proxy := range s.Proxies {
@@ -136,6 +129,13 @@ func (s *Server) Start(conf *Config) {
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc("", proxy.setup)
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc("/", proxy.setup)
 		r.PathPrefix(*proxy.ProxyPath).Subrouter().HandleFunc(`/{rest:[a-zA-Z0-9=.?\-~_\/]+}`, proxy.setup)
+	}
+
+	if s.Root != nil {
+		pathLocation := *s.Root
+		log.Info("Config location %s", pathLocation)
+		spa := spaHandler{staticPath: pathLocation, indexPath: "index.html"}
+		r.PathPrefix("/").Handler(spa)
 	}
 
 	port := getenv("PORT", s.Listen)
@@ -156,7 +156,7 @@ func (s *Server) Start(conf *Config) {
 		} else {
 			redisIpEnable = true
 		}
-		
+
 		redisIp, errRedis := GetKeyField(conf.Redis.Key, conf.Redis.Field)
 		if errRedis != nil {
 			log.Error("error %v", errRedis)

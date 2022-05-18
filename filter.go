@@ -38,8 +38,6 @@ func InitIpFilter(conf *Config) *ipfilter.IPFilter {
 		TrustProxy:     true,
 	})
 
-	println("defaultIps", defaultIps)
-
 	// Periodically check ip for time based
 	ticker := time.NewTicker(5 * time.Second)
 	quit := make(chan struct{})

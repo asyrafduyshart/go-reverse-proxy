@@ -18,7 +18,9 @@ type Config struct {
 	AccessLog          string `json:"access_log"`
 	LogLevel           string `json:"log_level"`
 	IpWhiteListUrl     string `json:"ip_whitelist_url"`
+	IpCheckInterval    string `json:"ip_check_interval"`
 	DefaultIpWhitelist string `json:"default_ip_whitelist"`
+	CheckIpInterval    string `json:"check_ip_interval"`
 	HTTP               struct {
 		Servers []Server `json:"servers"`
 	}
@@ -191,12 +193,14 @@ func main() {
 
 	log.Debug("Config Content: %v", conf)
 
+	ipf := InitIpFilter(conf)
+
 	count := 0
 	exitChan := make(chan int)
 	for _, server := range conf.HTTP.Servers {
 		go func(s Server) {
 			// loop through
-			s.Start(conf)
+			s.Start(conf, ipf)
 			exitChan <- 1
 		}(server)
 		count++

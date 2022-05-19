@@ -134,7 +134,7 @@ func (s *Server) Start(conf *Config, f *ipfilter.IPFilter) {
 		r.PathPrefix("/").Handler(spa)
 	}
 
-	port := getenv("PORT", s.Listen)
+	port := getenv("APP_PORT", s.Listen)
 
 	myProtectedHandler := f.Wrap(r)
 

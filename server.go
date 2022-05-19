@@ -138,7 +138,7 @@ func (s *Server) Start(conf *Config) {
 		r.PathPrefix("/").Handler(spa)
 	}
 
-	port := getenv("PORT", s.Listen)
+	port := getenv("APP_PORT", s.Listen)
 
 	ipUrlFilterEnabled := len(conf.IpWhiteListUrl) != 0
 	ipDefaultEnabled := len(conf.DefaultIpWhitelist) != 0

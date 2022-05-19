@@ -30,7 +30,7 @@ type Config struct {
 		Field string `json:"field"`
 	}
 }
-
+	
 const (
 	// ProjectName ...
 	ProjectName = "Goinx"

@@ -4,7 +4,7 @@
     "access_log": null,
     "redis" : {
         "url" : "redis://localhost:6379/1",
-        "key" : "config:company:lido88",
+        "key" : "user:key",
         "field": "ip_whitelist",
         "interval" : 20
     },
@@ -53,11 +53,6 @@
                                 "Authentication": "Basic 11235453"
                             }
                         ]
-                    },
-                    {
-                        "proxy_pass": "https://www.w3schools.com",
-                        "proxy_path": "/w3",
-                        "request_headers": []
                     }
                 ],
                 "domains": [

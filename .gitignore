@@ -19,3 +19,4 @@ web/
 www/
 postman
 *.log
+.env

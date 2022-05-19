@@ -1,10 +1,12 @@
 {
     "log_level": "debug",
+    "check_ip_interval": "20",
     "access_log": null,
     "redis" : {
-        "url" : "redis://localhost:6379",
-        "key" : "user:key",
-        "field": "ip_whitelist"
+        "url" : "redis://localhost:6379/1",
+        "key" : "config:company:lido88",
+        "field": "ip_whitelist",
+        "interval" : 20
     },
     "http": {
         "servers": [
@@ -21,9 +23,9 @@
                 "listen": "9004",
                 "files": [
                     {
-                        "path" : "pp-casino",
+                        "path" : "html-view",
                         "location" : "web",
-                        "index" : "pragmatic-live-casino.html"
+                        "index" : "view.html"
                     }
                 ]
             },

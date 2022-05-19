@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -33,35 +34,56 @@ func InitIpFilter(conf *Config) *ipfilter.IPFilter {
 	}
 
 	f := ipfilter.New(ipfilter.Options{
-		BlockByDefault: ipDefaultEnabled,
+		BlockByDefault: ipDefaultEnabled || ipUrlFilterEnabled || ipRedisEnabled,
 		AllowedIPs:     defaultIps,
 		TrustProxy:     true,
 	})
 
 	// Periodically check ip for time based
-	ticker := time.NewTicker(5 * time.Second)
+	var ips []string
+	var blockedIps []string
+
+	ipInterval := 300
+	if len(conf.CheckIpInterval) > 0 {
+		ipInterval, _ = strconv.Atoi(conf.CheckIpInterval)
+	}
+
+	ttl := time.Duration(ipInterval) * time.Second
+	ticker := time.NewTicker(ttl)
 	quit := make(chan struct{})
 	go func() {
-		var ips []string
 		for {
 			select {
 			case <-ticker.C:
 				// Get Ip from url if enabled
 				if ipUrlFilterEnabled {
 					urlres := ipsUrl(conf)
-					ips = append(ips, urlres...)
+					ips = appendIp(ips, urlres)
+					blockedIps = difference(ips, urlres)
+					for _, item := range blockedIps {
+						ips = FindAndDelete(ips, item)
+					}
 				}
 
 				// Get Ip from redis if enabled
 				if ipRedisEnabled {
 					urlres := ipsRedis(conf)
-					ips = append(ips, urlres...)
+					ips = appendIp(ips, urlres)
+					blockedIps = difference(ips, urlres)
+					for _, item := range blockedIps {
+						ips = FindAndDelete(ips, item)
+					}
 				}
 
 				// Assign as allowed ip
 				for i := range ips {
 					f.AllowIP(ips[i])
 				}
+
+				for i := range blockedIps {
+					f.BlockIP(blockedIps[i])
+				}
+
 			case <-quit:
 				ticker.Stop()
 				return
@@ -93,18 +115,53 @@ func ipsUrl(conf *Config) []string {
 }
 
 func ipsRedis(conf *Config) []string {
+	var redisIps []string
 	redisIp, errRedis := GetKeyField(conf.Redis.Key, conf.Redis.Field)
 	if errRedis != nil {
-		log.Error("error %v", errRedis)
+		log.Error("error get key field %v", errRedis)
+	} else {
+		match, _ := regexp.MatchString("^[0-9.,/]*$", redisIp)
+		if !match {
+			log.Error("error %s redis not valid. eg : 10.0.0.1,10.0.0.2,10.0.0/4", conf.Redis.Field)
+		} else {
+			redisIps := strings.Split(redisIp, ",")
+			return redisIps
+		}
 	}
-
-	match, _ := regexp.MatchString("^[0-9.,/]*$", redisIp)
-
-	if !match {
-		log.Error("error %v", "redis "+conf.Redis.Field+" not valid. eg : 10.0.0.1,10.0.0.2,10.0.0/4")
-	}
-
-	redisIps := strings.Split(redisIp, ",")
 
 	return redisIps
+}
+
+func appendIp(ips []string, newsIp []string) []string {
+
+	for _, item := range newsIp {
+		if !Contains(ips, item) {
+			ips = append(ips, item)
+		}
+	}
+
+	return ips
+}
+
+func difference(ips, newsIp []string) []string {
+	var diff []string
+	for i := 0; i < 2; i++ {
+		for _, s1 := range ips {
+			found := false
+			for _, s2 := range newsIp {
+				if s1 == s2 {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				diff = append(diff, s1)
+			}
+		}
+		if i == 0 {
+			ips, newsIp = newsIp, ips
+		}
+	}
+	return diff
 }

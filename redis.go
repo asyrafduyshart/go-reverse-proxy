@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	log "github.com/asyrafduyshart/go-reverse-proxy/log"
 	redis "github.com/go-redis/redis/v8"
 )
 
@@ -18,13 +19,21 @@ var (
 func RedisInit(url string) {
 	opt, err := redis.ParseURL(url)
 	if err != nil {
-		panic("Error redis parse url " + err.Error())
+		log.Error("Error redis parse url %s" + err.Error())
 	}
 	c := redis.NewClient(opt)
-	if err := c.Ping(ctx).Err(); err != nil {
-		panic("Unable to connect to redis " + err.Error())
-	}
 	client.c = c
+	errPing := Ping()
+	if errPing != nil {
+		log.Error("Unable to connect to redis %v", err.Error())
+	} else {
+		log.Info("redis %s connect!", url)
+	}
+
+}
+
+func Ping() error {
+	return client.c.Ping(ctx).Err()
 }
 
 func GetKeyField(key string, field string) (string, error) {

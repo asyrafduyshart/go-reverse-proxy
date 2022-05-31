@@ -29,3 +29,15 @@ func getenv(key, fallback string) string {
 	}
 	return value
 }
+
+
+func FindAndDelete(s []string, item string) []string {
+	index := 0
+	for _, i := range s {
+		if i != item {
+			s[index] = i
+			index++
+		}
+	}
+	return s[:index]
+}

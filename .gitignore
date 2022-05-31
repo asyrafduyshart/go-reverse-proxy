@@ -19,3 +19,6 @@ web/
 www/
 postman
 *.log
+.env
+
+config.json

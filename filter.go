@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -97,19 +96,19 @@ func ipsUrl(conf *Config) []string {
 	resp, err := http.Get(conf.IpWhiteListUrl)
 	if err != nil {
 		log.Error("error %v", err)
+		return []string{}
+	}
+	defer resp.Body.Close()
+
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("error %v", err.Error())
+		return []string{}
 	}
 
-	// read json http response
-	jsonDataFromHttp, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Error("error %v", err)
-	}
-	var ips []string
+	responseString := string(responseData)
 
-	err = json.Unmarshal([]byte(jsonDataFromHttp), &ips)
-	if err != nil {
-		log.Error("error %v", err)
-	}
+	ips := strings.Split(responseString, "\n")
 
 	return ips
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -44,8 +43,8 @@ func InitIpFilter(conf *Config) *ipfilter.IPFilter {
 	var blockedIps []string
 
 	ipInterval := 300
-	if len(conf.CheckIpInterval) > 0 {
-		ipInterval, _ = strconv.Atoi(conf.CheckIpInterval)
+	if len(conf.IpCheckInterval) > 0 {
+		ipInterval, _ = strconv.Atoi(conf.IpCheckInterval)
 	}
 
 	ttl := time.Duration(ipInterval) * time.Second
@@ -97,19 +96,19 @@ func ipsUrl(conf *Config) []string {
 	resp, err := http.Get(conf.IpWhiteListUrl)
 	if err != nil {
 		log.Error("error %v", err)
+		return []string{}
+	}
+	defer resp.Body.Close()
+
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("error %v", err.Error())
+		return []string{}
 	}
 
-	// read json http response
-	jsonDataFromHttp, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Error("error %v", err)
-	}
-	var ips []string
+	responseString := string(responseData)
 
-	err = json.Unmarshal([]byte(jsonDataFromHttp), &ips)
-	if err != nil {
-		log.Error("error %v", err)
-	}
+	ips := strings.Split(responseString, "\n")
 
 	return ips
 }

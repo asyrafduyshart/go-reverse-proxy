@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -16,7 +15,6 @@ import (
 func InitIpFilter(conf *Config) *ipfilter.IPFilter {
 
 	ipUrlFilterEnabled := len(conf.IpWhiteListUrl) != 0
-	fmt.Println("ipUrlFilterEnabled", ipUrlFilterEnabled)
 	ipDefaultEnabled := len(conf.DefaultIpWhitelist) != 0
 
 	defaultIps := strings.Split(conf.DefaultIpWhitelist, ",")
@@ -59,14 +57,12 @@ func InitIpFilter(conf *Config) *ipfilter.IPFilter {
 				// Get Ip from url if enabled
 				if ipUrlFilterEnabled {
 					urlres := ipsUrl(conf)
-					fmt.Println("urlres", urlres)
 					ips = appendIp(ips, urlres)
 					blockedIps = difference(ips, urlres)
 					for _, item := range blockedIps {
 						ips = FindAndDelete(ips, item)
 					}
 				}
-				fmt.Println("ips 1", ips)
 
 				// Get Ip from redis if enabled
 				if ipRedisEnabled {
@@ -77,8 +73,6 @@ func InitIpFilter(conf *Config) *ipfilter.IPFilter {
 						ips = FindAndDelete(ips, item)
 					}
 				}
-
-				fmt.Println("ips 2", ips)
 
 				// Assign as allowed ip
 				for i := range ips {

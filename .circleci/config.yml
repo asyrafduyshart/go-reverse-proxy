@@ -6,7 +6,7 @@ executors:
     docker:
       - image: circleci/buildpack-deps:stretch
 jobs:
-  build:
+  build-tags:
     executor: docker-publisher
     steps:
       - checkout
@@ -14,7 +14,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            docker build -t $IMAGE_NAME:latest .
+            docker build -t $IMAGE_NAME:$CIRCLE_TAG .
       - run:
           name: Archive Docker image
           command: docker save -o image.tar $IMAGE_NAME
@@ -22,7 +22,7 @@ jobs:
           root: .
           paths:
             - ./image.tar
-  publish-latest:
+  publish-tags:
     executor: docker-publisher
     steps:
       - attach_workspace:
@@ -35,18 +35,22 @@ jobs:
           name: Publish Docker Image to Docker Hub
           command: |
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:$CIRCLE_TAG
 workflows:
   version: 2
   build-master:
     jobs:
-      - build:
+      - build-tags:
           filters:
             branches:
-              only: master
-      - publish-latest:
+              ignore: /.*/
+            tags:
+              only: /[0-9]+(\.[0-9]+)*$/
+      - publish-tags:
           requires:
-            - build
+            - build-tags
           filters:
             branches:
-              only: master
+              ignore: /.*/
+            tags:
+              only: /[0-9]+(\.[0-9]+)*$/

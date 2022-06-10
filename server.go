@@ -2,13 +2,9 @@ package main
 
 import (
 	"crypto/tls"
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -96,7 +92,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Start the server
-func (s *Server) Start(conf *Config) {
+func (s *Server) Start(conf *Config, f *ipfilter.IPFilter) {
 
 	if s.Root != nil {
 		log.Info("%s listen %s, ssl: %v, static dir %s", s.Name, s.Listen, s.SSL, *s.Root)
@@ -138,74 +134,7 @@ func (s *Server) Start(conf *Config) {
 		r.PathPrefix("/").Handler(spa)
 	}
 
-	port := getenv("APP_PORT", s.Listen)
-
-	ipUrlFilterEnabled := len(conf.IpWhiteListUrl) != 0
-	ipDefaultEnabled := len(conf.DefaultIpWhitelist) != 0
-
-	defaultIps := strings.Split(conf.DefaultIpWhitelist, ",")
-
-	redisUrlStatus := len(conf.Redis.Url) != 0
-	redisKeyStatus := len(conf.Redis.Key) != 0
-	redisFieldStatus := len(conf.Redis.Field) != 0
-	redisIpEnable := false
-	if redisUrlStatus {
-		if !(redisKeyStatus && redisFieldStatus) {
-			log.Error("error %v", "Please set redis config properly")
-			return
-		} else {
-			redisIpEnable = true
-		}
-
-		redisIp, errRedis := GetKeyField(conf.Redis.Key, conf.Redis.Field)
-		if errRedis != nil {
-			log.Error("error %v", errRedis)
-		}
-
-		match, _ := regexp.MatchString("^[0-9.,/]*$", redisIp)
-
-		if !match {
-			log.Error("error %v", "redis "+conf.Redis.Field+" not valid. eg : 10.0.0.1,10.0.0.2,10.0.0/4")
-			return
-		}
-
-		redisIps := strings.Split(redisIp, ",")
-		defaultIps = append(defaultIps, redisIps...)
-	}
-
-	f := ipfilter.New(ipfilter.Options{
-		BlockByDefault: ipUrlFilterEnabled || ipDefaultEnabled || redisIpEnable,
-		AllowedIPs:     defaultIps,
-		TrustProxy:     true,
-	})
-
-	// If ip filter is enabled then request data accordingly
-	if ipUrlFilterEnabled {
-		go func() {
-			resp, err := http.Get(conf.IpWhiteListUrl)
-			if err != nil {
-				log.Error("error %v", err)
-				return
-			}
-
-			// read json http response
-			jsonDataFromHttp, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				log.Error("error %v", err)
-				return
-			}
-			var ips []string
-
-			err = json.Unmarshal([]byte(jsonDataFromHttp), &ips)
-			if err != nil {
-				log.Error("error %v", err)
-				return
-			}
-			for i := range ips {
-				f.AllowIP(ips[i])
-			}
-		}()
-	}
+	port := getenv("PORT", s.Listen)
 
 	myProtectedHandler := f.Wrap(r)
 
